@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 typedef char* string;
 
@@ -115,18 +116,18 @@ void show_sheet(string args[]){
     for(int i = 0; i < num_lines; i++){
         string colon_splits[3];
         //58 is the ASCII code for a colon
-        buffer_split(splits[i], colon_splits, 58);
+        buffer_split(splits[i], colon_splits, 58, colon_splits);
 
         //Get if the key = the requested
         if(strcicmp(colon_splits[0], args[2])){
             sheet_path = colon_splits[1];
-            if(strcicmp(colon_splits[2], "img"){
+            if(strcicmp(colon_splits[2], "img")){
                 execute_process(IMG_BIN, sheet_path);
             }
-            else if(strcicmp(colon_splits[2], "pdf"){
+            else if(strcicmp(colon_splits[2], "pdf")){
                 execute_process(PDF_BIN, sheet_path);
             }
-            else if(strcicmp(colon_splits[2], "txt"){
+            else if(strcicmp(colon_splits[2], "txt")){
                 execute_process(TXT_BIN, sheet_path);
             }
         } 
