@@ -17,7 +17,7 @@ int strcicmp(char const *a, char const *b){
 }
 
 long get_file_size(FILE *file){
-   fseek(file, 0L, SEEK_END);
+   fseek(file, 0, SEEK_END);
    long size = ftell(file);
    rewind(file);
    return size; 
@@ -43,8 +43,8 @@ void list_sheets(string args[]){
     //.sheets contains a mapping to all of the saved cheatsheets and their locations
     FILE *saved_sheets;
     //TODO: Check for file-perm bugs (may need to use r+)
-    saved_sheets = fopen("./.sheets", "w+"); 
-    long file_size = get_file_size(saved_sheets);
+    saved_sheets = fopen("./.sheets", "r"); 
+    int file_size = get_file_size(saved_sheets);
 
     printf("File Size of '.sheets' : %i \n", file_size);
     fclose(saved_sheets);
@@ -97,7 +97,7 @@ void show_sheet(string args[]){
     saved_sheets = fopen("./.sheets", "r");
  
     //Iterate over buffer
-    long file_size;
+    int file_size;
     file_size = get_file_size(saved_sheets);
     char file_buffer[file_size];
     
@@ -108,7 +108,7 @@ void show_sheet(string args[]){
     string splits[num_lines];
     buffer_split(file_buffer, file_size, 10, splits);
     
-    char* IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
+    string IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
    
     //Binaries must be kept in the first 3 lines 
     //[key]:[value]:[type]
@@ -116,7 +116,7 @@ void show_sheet(string args[]){
     for(int i = 0; i < num_lines; i++){
         string colon_splits[3];
         //58 is the ASCII code for a colon
-        buffer_split(splits[i], colon_splits, 58, colon_splits);
+        buffer_split(splits[i], 3, 58, colon_splits);
 
         //Get if the key = the requested
         if(strcicmp(colon_splits[0], args[2])){
