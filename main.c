@@ -71,7 +71,7 @@ void buffer_split(char *buffer, int buff_size, char split_char, struct string_sp
     //Split strings
     int current_split = 0;
 
-    while(buff_cursor + line_iter < buff_size){
+    while(buff_cursor + line_iter <= buff_size){
         buff_char = buffer[buff_cursor + line_iter];
         
         //If the character in the buffer is equal to the ASCII code, or if the character is null
@@ -91,19 +91,6 @@ void buffer_split(char *buffer, int buff_size, char split_char, struct string_sp
         }
         line_iter++;
     }
-    //Replace this mess with a do while
-    string buffer_line = malloc(line_iter * sizeof(char)); 
-
-    //NOTE: Check these offsets
-    memcpy(buffer_line, buffer + buff_cursor, line_iter);
-    //Splits
-    splits[current_split].val = buffer_line;
-    splits[current_split].size = line_iter; 
-
-    current_split++;
-    //Add an offset of 1 to skip over the newline char
-    buff_cursor += line_iter + 1;
-    line_iter = 0;
 }
 
 void show_sheet(int argc, string args[]){
