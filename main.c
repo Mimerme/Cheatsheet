@@ -8,14 +8,6 @@ void execute_process(string bin_path, string file_path){
 
 }
 
-int strcicmp(char const *a, char const *b){
-    for (;; a++, b++) {
-        int d = tolower(*a) - tolower(*b);
-        if (d != 0 || !*a)
-            return d;
-    }
-}
-
 long get_file_size(FILE *file){
    fseek(file, 0, SEEK_END);
    long size = ftell(file);
@@ -119,25 +111,25 @@ void show_sheet(string args[]){
         buffer_split(splits[i], 3, 58, colon_splits);
 
         //Get if the key = the requested
-        if(strcicmp(colon_splits[0], args[2])){
+        if(strcmp(colon_splits[0], args[2])){
             sheet_path = colon_splits[1];
-            if(strcicmp(colon_splits[2], "img")){
+            if(strcmp(colon_splits[2], "img")){
                 execute_process(IMG_BIN, sheet_path);
             }
-            else if(strcicmp(colon_splits[2], "pdf")){
+            else if(strcmp(colon_splits[2], "pdf")){
                 execute_process(PDF_BIN, sheet_path);
             }
-            else if(strcicmp(colon_splits[2], "txt")){
+            else if(strcmp(colon_splits[2], "txt")){
                 execute_process(TXT_BIN, sheet_path);
             }
         } 
-        else if(strcicmp(colon_splits[0], "IMG_BIN")){
+        else if(strcmp(colon_splits[0], "IMG_BIN")){
             IMG_BIN = colon_splits[1];
         }
-        else if(strcicmp(colon_splits[0], "PDF_BIN")){
+        else if(strcmp(colon_splits[0], "PDF_BIN")){
             PDF_BIN = colon_splits[1];
         }
-        else if(strcicmp(colon_splits[0], "TXT_BIN")){
+        else if(strcmp(colon_splits[0], "TXT_BIN")){
             TXT_BIN = colon_splits[1];
         }
     } 
