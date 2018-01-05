@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 typedef char* string;
+
+struct string_split {
+    string val;
+    int size;
+};
 
 void execute_process(string bin_path, string file_path){
 
@@ -54,7 +60,7 @@ void add_sheets(string args[]){
 }
 
 //Splits a given buffer @ a given character into multiple strings
-void buffer_split(char *buffer, int buff_size, char split_char, string splits[]){
+void buffer_split(char *buffer, int buff_size, char split_char, struct string_split splits[]){
     //Points to the last position that the data was copied from (the last newline)
     short buff_cursor = 0;
     //Iterates over each character in the line until it runs into a newline
@@ -68,23 +74,44 @@ void buffer_split(char *buffer, int buff_size, char split_char, string splits[])
     while(buff_cursor + line_iter < buff_size){
         buff_char = buffer[buff_cursor + line_iter];
         
-        //If the character in the buffer is a newline
+        //If the character in the buffer is equal to the ASCII code, or if the character is null
         if(buff_char == split_char){
-            char buffer_line[line_iter];
+            string buffer_line = malloc(line_iter * sizeof(char)); 
+
             //NOTE: Check these offsets
-            memcpy(buffer_line, buffer + buff_cursor, line_iter + 1);
-            //Splits 
-            splits[current_split] = buffer_line;
+            memcpy(buffer_line, buffer + buff_cursor, line_iter);
+            //Splits
+            splits[current_split].val = buffer_line;
+            splits[current_split].size = line_iter; 
 
             current_split++;
-            buff_cursor += line_iter;
+            //Add an offset of 1 to skip over the newline char
+            buff_cursor += line_iter + 1;
             line_iter = 0;
         }
         line_iter++;
     }
+    //Replace this mess with a do while
+    string buffer_line = malloc(line_iter * sizeof(char)); 
+
+    //NOTE: Check these offsets
+    memcpy(buffer_line, buffer + buff_cursor, line_iter);
+    //Splits
+    splits[current_split].val = buffer_line;
+    splits[current_split].size = line_iter; 
+
+    current_split++;
+    //Add an offset of 1 to skip over the newline char
+    buff_cursor += line_iter + 1;
+    line_iter = 0;
 }
 
-void show_sheet(string args[]){
+void show_sheet(int argc, string args[]){
+    if(argc != 3){
+        printf("Specifed %i arguments when there should be 3\n", argc - 2);
+        return;
+    }
+    
     FILE *saved_sheets;
     saved_sheets = fopen("./.sheets", "r");
  
@@ -97,40 +124,41 @@ void show_sheet(string args[]){
     fread(file_buffer, sizeof(char), file_size, saved_sheets);
    
     int num_lines = count_chars(file_buffer, file_size, 10); 
-    string splits[num_lines];
+    struct string_split splits[num_lines];
     buffer_split(file_buffer, file_size, 10, splits);
     
+
     string IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
    
     //Binaries must be kept in the first 3 lines 
     //[key]:[value]:[type]
     //Interate over each line until the key/bin paths are found
     for(int i = 0; i < num_lines; i++){
-        string colon_splits[3];
+        struct string_split colon_splits[3];
         //58 is the ASCII code for a colon
-        buffer_split(splits[i], 3, 58, colon_splits);
+        buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
 
         //Get if the key = the requested
-        if(strcmp(colon_splits[0], args[2])){
-            sheet_path = colon_splits[1];
-            if(strcmp(colon_splits[2], "img")){
+        if(strcmp(colon_splits[0].val, args[2])){
+            sheet_path = colon_splits[1].val;
+            if(strcmp(colon_splits[2].val, "img")){
                 execute_process(IMG_BIN, sheet_path);
             }
-            else if(strcmp(colon_splits[2], "pdf")){
+            else if(strcmp(colon_splits[2].val, "pdf")){
                 execute_process(PDF_BIN, sheet_path);
             }
-            else if(strcmp(colon_splits[2], "txt")){
+            else if(strcmp(colon_splits[2].val, "txt")){
                 execute_process(TXT_BIN, sheet_path);
             }
         } 
-        else if(strcmp(colon_splits[0], "IMG_BIN")){
-            IMG_BIN = colon_splits[1];
+        else if(strcmp(colon_splits[0].val, "IMG_BIN")){
+            IMG_BIN = colon_splits[1].val;
         }
-        else if(strcmp(colon_splits[0], "PDF_BIN")){
-            PDF_BIN = colon_splits[1];
+        else if(strcmp(colon_splits[0].val, "PDF_BIN")){
+            PDF_BIN = colon_splits[1].val;
         }
-        else if(strcmp(colon_splits[0], "TXT_BIN")){
-            TXT_BIN = colon_splits[1];
+        else if(strcmp(colon_splits[0].val, "TXT_BIN")){
+            TXT_BIN = colon_splits[1].val;
         }
     } 
 
@@ -158,7 +186,7 @@ int main(int argc, string argv[]){
             break;
         //show
         case 's':
-            show_sheet(argv);
+            show_sheet(argc, argv);
             break;
         //add
         case 'a':
