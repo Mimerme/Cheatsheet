@@ -59,6 +59,16 @@ void add_sheets(string args[]){
     fclose(saved_sheets);
 }
 
+void split(char *buffer, int buffer_offset, int line_size, struct string_split *split){
+      string buffer_line = malloc(line_size * sizeof(char)); 
+
+      //NOTE: Check these offsets
+      memcpy(buffer_line, buffer + buffer_offset, line_size);
+      //Splits
+      split->val = buffer_line;
+      split->size = line_size; 
+}
+
 //Splits a given buffer @ a given character into multiple strings
 void buffer_split(char *buffer, int buff_size, char split_char, struct string_split splits[]){
     //Points to the last position that the data was copied from (the last newline)
@@ -71,19 +81,12 @@ void buffer_split(char *buffer, int buff_size, char split_char, struct string_sp
     //Split strings
     int current_split = 0;
 
-    while(buff_cursor + line_iter <= buff_size){
+    while(buff_cursor + line_iter < buff_size){
         buff_char = buffer[buff_cursor + line_iter];
         
         //If the character in the buffer is equal to the ASCII code, or if the character is null
         if(buff_char == split_char){
-            string buffer_line = malloc(line_iter * sizeof(char)); 
-
-            //NOTE: Check these offsets
-            memcpy(buffer_line, buffer + buff_cursor, line_iter);
-            //Splits
-            splits[current_split].val = buffer_line;
-            splits[current_split].size = line_iter; 
-
+            split(buffer, buff_cursor, line_iter, &splits[current_split]); 
             current_split++;
             //Add an offset of 1 to skip over the newline char
             buff_cursor += line_iter + 1;
@@ -91,6 +94,9 @@ void buffer_split(char *buffer, int buff_size, char split_char, struct string_sp
         }
         line_iter++;
     }
+
+    //One final split @ the EOF
+    split(buffer, buff_cursor, line_iter, &splits[current_split]); 
 }
 
 void show_sheet(int argc, string args[]){
@@ -126,25 +132,25 @@ void show_sheet(int argc, string args[]){
         buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
 
         //Get if the key = the requested
-        if(strcmp(colon_splits[0].val, args[2])){
+        if(strcmp(colon_splits[0].val, args[2]) == 0){
             sheet_path = colon_splits[1].val;
-            if(strcmp(colon_splits[2].val, "img")){
+            if(strcmp(colon_splits[2].val, "img") == 0){
                 execute_process(IMG_BIN, sheet_path);
             }
-            else if(strcmp(colon_splits[2].val, "pdf")){
+            else if(strcmp(colon_splits[2].val, "pdf") == 0){
                 execute_process(PDF_BIN, sheet_path);
             }
-            else if(strcmp(colon_splits[2].val, "txt")){
+            else if(strcmp(colon_splits[2].val, "txt") == 0){
                 execute_process(TXT_BIN, sheet_path);
             }
         } 
-        else if(strcmp(colon_splits[0].val, "IMG_BIN")){
+        else if(strcmp(colon_splits[0].val, "IMG_BIN") == 0){
             IMG_BIN = colon_splits[1].val;
         }
-        else if(strcmp(colon_splits[0].val, "PDF_BIN")){
+        else if(strcmp(colon_splits[0].val, "PDF_BIN") == 0){
             PDF_BIN = colon_splits[1].val;
         }
-        else if(strcmp(colon_splits[0].val, "TXT_BIN")){
+        else if(strcmp(colon_splits[0].val, "TXT_BIN") == 0){
             TXT_BIN = colon_splits[1].val;
         }
     } 
