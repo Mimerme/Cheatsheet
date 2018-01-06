@@ -11,7 +11,12 @@ struct string_split {
 };
 
 void execute_process(string bin_path, string file_path){
+    char * new_str;
+    new_str = malloc(strlen(bin_path) + strlen(file_path) + 1);
+    strcat(new_str, bin_path);
+    strcat(new_str, file_path);
 
+    system(new_str);
 }
 
 long get_file_size(FILE *file){
@@ -31,32 +36,6 @@ int count_chars(char *buffer, int buffer_length, char char_id){
        } 
     }
     return count;
-}
-
-
-//Define the functions
-void list_sheets(string args[]){
-    const char* filename = ".sheets";
-
-    //.sheets contains a mapping to all of the saved cheatsheets and their locations
-    FILE *saved_sheets;
-    //TODO: Check for file-perm bugs (may need to use r+)
-    saved_sheets = fopen("./.sheets", "r"); 
-    int file_size = get_file_size(saved_sheets);
-
-    printf("File Size of '.sheets' : %i \n", file_size);
-    fclose(saved_sheets);
-}
-
-void add_sheets(string args[]){
-    char *sheet_name = args[2];
-    char *sheet_path = args[3];
-    FILE *saved_sheets;
-    saved_sheets = fopen("./.sheets", "a");
-    
-    fprintf(saved_sheets, "%s:%s\n", sheet_name, sheet_path);
-
-    fclose(saved_sheets);
 }
 
 void split(char *buffer, int buffer_offset, int line_size, struct string_split *split){
@@ -99,9 +78,59 @@ void buffer_split(char *buffer, int buff_size, char split_char, struct string_sp
     split(buffer, buff_cursor, line_iter, &splits[current_split]); 
 }
 
+//Define the functions
+void list_sheets(string args[]){
+    const char* filename = ".sheets";
+
+    //.sheets contains a mapping to all of the saved cheatsheets and their locations
+    FILE *saved_sheets;
+    //TODO: Check for file-perm bugs (may need to use r+)
+    saved_sheets = fopen("./.sheets", "r"); 
+    int file_size = get_file_size(saved_sheets);
+
+    printf("Size of '.sheets' : %i bytes\n", file_size);
+    
+    char file_buffer[file_size];
+    
+    //Read all of the file's contents into a buffer and split the buffer at all of the newlines
+    fread(file_buffer, sizeof(char), file_size, saved_sheets);
+   
+    int num_lines = count_chars(file_buffer, file_size, 10); 
+    struct string_split splits[num_lines];
+    buffer_split(file_buffer, file_size, 10, splits);
+    
+
+    const int spacing = 20;
+    printf("%*s| %*s|%*s|\n", spacing,"Key Name", spacing, "File Location", spacing, "File Type");
+    struct string_split colon_splits[3];
+    for(int i = 0; i < num_lines; i++){
+        //58 is the ASCII code for a colon
+        buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
+
+        printf("%*s|%*s|%*s|\n", spacing, colon_splits[0].val, spacing, colon_splits[1].val, spacing, colon_splits[2].val);
+    } 
+    fclose(saved_sheets);
+}
+
+void add_sheets(int argc, string args[]){
+    if(argc != 5){
+        printf("Specifed %i arguments when there should be 3\n", argc - 2);
+    }
+
+    char *sheet_name = args[2];
+    char *sheet_path = args[3];
+    char *sheet_type = args[4];
+    FILE *saved_sheets;
+    saved_sheets = fopen("./.sheets", "a");
+    
+    fprintf(saved_sheets, "%s:%s:%s\n", sheet_name, sheet_path, sheet_type);
+
+    fclose(saved_sheets);
+}
+
 void show_sheet(int argc, string args[]){
     if(argc != 3){
-        printf("Specifed %i arguments when there should be 3\n", argc - 2);
+        printf("Specifed %i arguments when there should be 1\n", argc - 2);
         return;
     }
     
@@ -131,20 +160,9 @@ void show_sheet(int argc, string args[]){
         //58 is the ASCII code for a colon
         buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
 
-        //Get if the key = the requested
-        if(strcmp(colon_splits[0].val, args[2]) == 0){
-            sheet_path = colon_splits[1].val;
-            if(strcmp(colon_splits[2].val, "img") == 0){
-                execute_process(IMG_BIN, sheet_path);
-            }
-            else if(strcmp(colon_splits[2].val, "pdf") == 0){
-                execute_process(PDF_BIN, sheet_path);
-            }
-            else if(strcmp(colon_splits[2].val, "txt") == 0){
-                execute_process(TXT_BIN, sheet_path);
-            }
-        } 
-        else if(strcmp(colon_splits[0].val, "IMG_BIN") == 0){
+        //Parse line by line
+        //Parse the binaries first
+        if(strcmp(colon_splits[0].val, "IMG_BIN") == 0){
             IMG_BIN = colon_splits[1].val;
         }
         else if(strcmp(colon_splits[0].val, "PDF_BIN") == 0){
@@ -152,6 +170,20 @@ void show_sheet(int argc, string args[]){
         }
         else if(strcmp(colon_splits[0].val, "TXT_BIN") == 0){
             TXT_BIN = colon_splits[1].val;
+        }
+
+        //Parse the files but check if the binaries have already been defined
+        else if(strcmp(colon_splits[0].val, args[2]) == 0){
+            sheet_path = colon_splits[1].val;
+            if(strcmp(colon_splits[2].val, "img") == 0 && IMG_BIN == NULL){
+                execute_process(IMG_BIN, sheet_path);
+            }
+            else if(strcmp(colon_splits[2].val, "pdf") == 0 && PDF_BIN == NULL){
+                execute_process(PDF_BIN, sheet_path);
+            }
+            else if(strcmp(colon_splits[2].val, "txt") == 0 && TXT_BIN == NULL){
+                execute_process(TXT_BIN, sheet_path);
+            }
         }
     } 
 
@@ -162,6 +194,7 @@ void show_sheet(int argc, string args[]){
 }
 
 int main(int argc, string argv[]){
+
     if (argc == 1){
         printf("No arguments specified\n");
         return 0;
@@ -183,7 +216,7 @@ int main(int argc, string argv[]){
             break;
         //add
         case 'a':
-            add_sheets(argv);
+            add_sheets(argc, argv);
             break;
         default:
             printf("Unrecognized command. Type 'help' for more\n");
