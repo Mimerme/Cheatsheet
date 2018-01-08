@@ -114,7 +114,7 @@ void list_sheets(string args[]){
 
 void add_sheets(int argc, string args[]){
     if(argc != 5){
-        printf("Specifed %i arguments when there should be 3\n", argc - 2);
+        printf("Specifed %i parameters when there should be 3\n", argc - 2);
     }
 
     char *sheet_name = args[2];
@@ -130,7 +130,7 @@ void add_sheets(int argc, string args[]){
 
 void show_sheet(int argc, string args[]){
     if(argc != 3){
-        printf("Specifed %i arguments when there should be 1\n", argc - 2);
+        printf("Specifed %i parameters when there should be 1\n", argc - 2);
         return;
     }
     
@@ -175,16 +175,39 @@ void show_sheet(int argc, string args[]){
         //Parse the files but check if the binaries have already been defined
         else if(strcmp(colon_splits[0].val, args[2]) == 0){
             sheet_path = colon_splits[1].val;
-            if(strcmp(colon_splits[2].val, "img") == 0 && IMG_BIN == NULL){
-                execute_process(IMG_BIN, sheet_path);
+            if(strcmp(colon_splits[2].val, "img") == 0){
+                if(IMG_BIN != NULL){
+                    execute_process(IMG_BIN, sheet_path);
+                }
+                else{
+                    printf("key <%s> was found, but <IMG_BIN> was not defined\n", colon_splits[0].val);
+                    return;
+                }
             }
-            else if(strcmp(colon_splits[2].val, "pdf") == 0 && PDF_BIN == NULL){
-                execute_process(PDF_BIN, sheet_path);
+            else if(strcmp(colon_splits[2].val, "pdf") == 0){
+                if(PDF_BIN != NULL){
+                    execute_process(PDF_BIN, sheet_path);
+                }
+                else{
+                    printf("key <%s> was found, but <PDF_BIN> was not defined\n", colon_splits[0].val);
+                    return;
+                }
             }
-            else if(strcmp(colon_splits[2].val, "txt") == 0 && TXT_BIN == NULL){
-                execute_process(TXT_BIN, sheet_path);
+            else if(strcmp(colon_splits[2].val, "txt") == 0){
+                if(TXT_BIN != NULL){
+                    execute_process(TXT_BIN, sheet_path);
+                }
+                else{
+                    printf("key <%s> was found, but <TXT_BIN> was not defined\n", colon_splits[0].val);
+                    return;
+                }
             }
+            printf("The specified file type <%s> is unrecognized\n", colon_splits[2].val);
+            return;
         }
+
+        printf("Failed to find any sheets with the key : %s\n", args[2]);
+        return;
     } 
 
 
