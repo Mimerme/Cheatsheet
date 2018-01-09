@@ -128,6 +128,10 @@ void add_sheets(int argc, string args[]){
     fclose(saved_sheets);
 }
 
+void parse(string ){
+
+}
+
 void show_sheet(int argc, string args[]){
     if(argc != 3){
         printf("Specifed %i parameters when there should be 1\n", argc - 2);
@@ -181,7 +185,6 @@ void show_sheet(int argc, string args[]){
                 }
                 else{
                     printf("key <%s> was found, but <IMG_BIN> was not defined\n", colon_splits[0].val);
-                    return;
                 }
             }
             else if(strcmp(colon_splits[2].val, "pdf") == 0){
@@ -190,7 +193,6 @@ void show_sheet(int argc, string args[]){
                 }
                 else{
                     printf("key <%s> was found, but <PDF_BIN> was not defined\n", colon_splits[0].val);
-                    return;
                 }
             }
             else if(strcmp(colon_splits[2].val, "txt") == 0){
@@ -199,15 +201,12 @@ void show_sheet(int argc, string args[]){
                 }
                 else{
                     printf("key <%s> was found, but <TXT_BIN> was not defined\n", colon_splits[0].val);
-                    return;
                 }
             }
             printf("The specified file type <%s> is unrecognized\n", colon_splits[2].val);
-            return;
         }
 
         printf("Failed to find any sheets with the key : %s\n", args[2]);
-        return;
     } 
 
 
@@ -246,4 +245,3 @@ int main(int argc, string argv[]){
             break;
     }
 }
-
