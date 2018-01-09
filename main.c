@@ -128,6 +128,36 @@ void add_sheets(int argc, string args[]){
     fclose(saved_sheets);
 }
 
+void parse_and_execute(string lines[], int num_lines, string key){
+    for(int i = 0; i < num_lines; i++){
+        struct string_split colon_splits[3];
+        buffer_split(lines[i].val, lines[i].size, 58, colon_splits);
+        string file_type, file_location;
+
+        if(stringcmp(colon_splits[0].val, key)){
+            //Save some of the array into temporary variables
+            file_type = malloc(colon_splits[2].size * sizeof(char));
+            file_type = colon_splits[2].val;
+
+            file_location = malloc(colon_splits[1].size * sizeof(char));
+            file_location = colon_splits[1].val;
+
+            //Iterate over the file buffer again and find the binaries
+            for(int k = 0; k < num_lines; k++){
+                buffer_split(lines[k].val, lines[k].size, 58, colon_splits);
+                if(strcmp(colon_splits[0].val, file_type) && strcmp(colon_splits[2].val, "bin")){
+                    execute_process(colon_splits[1].val, file_location); 
+                    return;
+                }
+            }
+            printf("sheet was found, but its corresponding binary was not defined");
+            free(file_type);
+            free(file_location);
+        }
+    }
+    printf("No sheet was found corresponding to the give key");
+}
+
 void show_sheet(int argc, string args[]){
     if(argc != 3){
         printf("Specifed %i arguments when there should be 1\n", argc - 2);
@@ -153,6 +183,8 @@ void show_sheet(int argc, string args[]){
     string IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
    
     //Binaries must be kept in the first 3 lines 
+    //[type]:[value]:bin
+    //SHEET ENTRY
     //[key]:[value]:[type]
     //Interate over each line until the key/bin paths are found
     for(int i = 0; i < num_lines; i++){
