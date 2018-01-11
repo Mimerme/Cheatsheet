@@ -128,13 +128,16 @@ void add_sheets(int argc, string args[]){
     fclose(saved_sheets);
 }
 
-void parse_and_execute(string lines[], int num_lines, string key){
+void parse_and_execute(struct string_split lines[], int num_lines, string key){
     for(int i = 0; i < num_lines; i++){
         struct string_split colon_splits[3];
-        buffer_split(lines[i].val, lines[i].size, 58, colon_splits);
+        int char_count = count_chars(lines[i].val, lines[i].size, 58);
+        buffer_split(lines[i].val, char_count, 58, colon_splits);
         string file_type, file_location;
 
-        if(stringcmp(colon_splits[0].val, key)){
+        printf("%s\n", lines[i].val);
+
+        if(strcmp(colon_splits[0].val, key)){
             //Save some of the array into temporary variables
             file_type = malloc(colon_splits[2].size * sizeof(char));
             file_type = colon_splits[2].val;
@@ -150,12 +153,12 @@ void parse_and_execute(string lines[], int num_lines, string key){
                     return;
                 }
             }
-            printf("sheet was found, but its corresponding binary was not defined");
+            printf("sheet was found, but its corresponding binary was not defined\n");
             free(file_type);
             free(file_location);
         }
     }
-    printf("No sheet was found corresponding to the give key");
+    printf("No sheet was found corresponding to the given key\n");
 }
 
 void show_sheet(int argc, string args[]){
@@ -178,64 +181,64 @@ void show_sheet(int argc, string args[]){
     int num_lines = count_chars(file_buffer, file_size, 10); 
     struct string_split splits[num_lines];
     buffer_split(file_buffer, file_size, 10, splits);
-    
+    parse_and_execute(splits, num_lines, args[2]);
 
-    string IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
+    //string IMG_BIN, PDF_BIN, TXT_BIN, sheet_path;
    
-    //Binaries must be kept in the first 3 lines 
-    //[type]:[value]:bin
-    //SHEET ENTRY
-    //[key]:[value]:[type]
-    //Interate over each line until the key/bin paths are found
-    for(int i = 0; i < num_lines; i++){
-        struct string_split colon_splits[3];
-        //58 is the ASCII code for a colon
-        buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
+    ////Binaries must be kept in the first 3 lines 
+    ////[type]:[value]:bin
+    ////SHEET ENTRY
+    ////[key]:[value]:[type]
+    ////Interate over each line until the key/bin paths are found
+    //for(int i = 0; i < num_lines; i++){
+    //    struct string_split colon_splits[3];
+    //    //58 is the ASCII code for a colon
+    //    buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
 
-        //Parse line by line
-        //Parse the binaries first
-        if(strcmp(colon_splits[0].val, "IMG_BIN") == 0){
-            IMG_BIN = colon_splits[1].val;
-        }
-        else if(strcmp(colon_splits[0].val, "PDF_BIN") == 0){
-            PDF_BIN = colon_splits[1].val;
-        }
-        else if(strcmp(colon_splits[0].val, "TXT_BIN") == 0){
-            TXT_BIN = colon_splits[1].val;
-        }
+    //    //Parse line by line
+    //    //Parse the binaries first
+    //    if(strcmp(colon_splits[0].val, "IMG_BIN") == 0){
+    //        IMG_BIN = colon_splits[1].val;
+    //    }
+    //    else if(strcmp(colon_splits[0].val, "PDF_BIN") == 0){
+    //        PDF_BIN = colon_splits[1].val;
+    //    }
+    //    else if(strcmp(colon_splits[0].val, "TXT_BIN") == 0){
+    //        TXT_BIN = colon_splits[1].val;
+    //    }
 
-        //Parse the files but check if the binaries have already been defined
-        else if(strcmp(colon_splits[0].val, args[2]) == 0){
-            sheet_path = colon_splits[1].val;
-            if(strcmp(colon_splits[2].val, "img") == 0){
-                if(IMG_BIN != NULL){
-                    execute_process(IMG_BIN, sheet_path);
-                }
-                else{
-                    printf("key <%s> was found, but <IMG_BIN> was not defined\n", colon_splits[0].val);
-                }
-            }
-            else if(strcmp(colon_splits[2].val, "pdf") == 0){
-                if(PDF_BIN != NULL){
-                    execute_process(PDF_BIN, sheet_path);
-                }
-                else{
-                    printf("key <%s> was found, but <PDF_BIN> was not defined\n", colon_splits[0].val);
-                }
-            }
-            else if(strcmp(colon_splits[2].val, "txt") == 0){
-                if(TXT_BIN != NULL){
-                    execute_process(TXT_BIN, sheet_path);
-                }
-                else{
-                    printf("key <%s> was found, but <TXT_BIN> was not defined\n", colon_splits[0].val);
-                }
-            }
-            printf("The specified file type <%s> is unrecognized\n", colon_splits[2].val);
-        }
+    //    //Parse the files but check if the binaries have already been defined
+    //    else if(strcmp(colon_splits[0].val, args[2]) == 0){
+    //        sheet_path = colon_splits[1].val;
+    //        if(strcmp(colon_splits[2].val, "img") == 0){
+    //            if(IMG_BIN != NULL){
+    //                execute_process(IMG_BIN, sheet_path);
+    //            }
+    //            else{
+    //                printf("key <%s> was found, but <IMG_BIN> was not defined\n", colon_splits[0].val);
+    //            }
+    //        }
+    //        else if(strcmp(colon_splits[2].val, "pdf") == 0){
+    //            if(PDF_BIN != NULL){
+    //                execute_process(PDF_BIN, sheet_path);
+    //            }
+    //            else{
+    //                printf("key <%s> was found, but <PDF_BIN> was not defined\n", colon_splits[0].val);
+    //            }
+    //        }
+    //        else if(strcmp(colon_splits[2].val, "txt") == 0){
+    //            if(TXT_BIN != NULL){
+    //                execute_process(TXT_BIN, sheet_path);
+    //            }
+    //            else{
+    //                printf("key <%s> was found, but <TXT_BIN> was not defined\n", colon_splits[0].val);
+    //            }
+    //        }
+    //        printf("The specified file type <%s> is unrecognized\n", colon_splits[2].val);
+    //    }
 
-        printf("Failed to find any sheets with the key : %s\n", args[2]);
-    } 
+    //    printf("Failed to find any sheets with the key : %s\n", args[2]);
+    //} 
 
 
     //if any key chars are detected handle the buffer
