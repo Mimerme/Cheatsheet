@@ -2,8 +2,27 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 typedef char* string;
+char* filename;
+
+void compute_filepath(){
+    string homePath = getenv("HOME");
+    filename = malloc(strlen(homePath) + strlen("/.cheatsheet/.sheets"));
+    filename = homePath;
+    strcat(filename, "/.cheatsheet/");
+    mkdir(filename, 0775);
+    strcat(filename, ".sheets");
+}
+
+//Checks if the file is NULL
+void check_file(FILE *name){
+    if(name == NULL){
+        printf("Problem opening the file. Does the file exist?\n");
+        exit(0);
+    }
+}
 
 void execute_process(string bin_path, string file_path){
     char * new_str;
@@ -17,6 +36,8 @@ void execute_process(string bin_path, string file_path){
 }
 
 long get_file_size(FILE *file){
+   check_file(file);
+
    fseek(file, 0, SEEK_END);
    long size = ftell(file);
    rewind(file);
@@ -36,27 +57,32 @@ int count_chars(char *buffer, int buffer_length, char char_id){
 }
 
 //Splits a given buffer @ a given character into multiple strings
-void buffer_split(char *buffer, const char split_char, string splits[]){
+void buffer_split(string buffer, const char split_char, string splits[]){
     int i = 0;
     string split;
 
-    while((split = strsep(&buffer, &split_char)) != NULL){  
+    //TODO: Hack can be done without copy
+    string buff_copy = malloc(strlen(buffer) + 1);
+    strcpy(buff_copy, buffer);
+
+    while((split = strsep(&buff_copy, &split_char)) != NULL){  
         int length = strlen(split);
 
         splits[i] = malloc(length * sizeof(char));
         memcpy(splits[i], split, length);
         i++;
     }
+    free(buff_copy);
 }
 
 //Define the functions
 void list_sheets(string args[]){
-    const char* filename = ".sheets";
+    compute_filepath();
 
     //.sheets contains a mapping to all of the saved cheatsheets and their locations
     FILE *saved_sheets;
     //TODO: Check for file-perm bugs (may need to use r+)
-    saved_sheets = fopen("./.sheets", "r"); 
+    saved_sheets = fopen(filename, "r"); 
     int file_size = get_file_size(saved_sheets);
 
     printf("Size of '.sheets' : %i bytes\n", file_size);
@@ -96,11 +122,13 @@ void add_binary(int argc, string args[]){
         printf("Specifed %i parameters when there should be 3\n", argc - 2);
         return;
     }
+    
+    compute_filepath();
 
     char *binary_location = args[2];
     char *binary_type = args[3];
     FILE *saved_sheets;
-    saved_sheets = fopen("./.sheets", "a");
+    saved_sheets = fopen(filename, "a");
     
     fprintf(saved_sheets, "%s:%s:bin\n", binary_type, binary_location);
 
@@ -113,12 +141,13 @@ void add_sheets(int argc, string args[]){
         printf("Specifed %i parameters when there should be 3\n", argc - 2);
         return;
     }
+    compute_filepath();
 
     char *sheet_name = args[2];
     char *sheet_path = args[3];
     char *sheet_type = args[4];
     FILE *saved_sheets;
-    saved_sheets = fopen("./.sheets", "a");
+    saved_sheets = fopen(filename, "a+");
     
     fprintf(saved_sheets, "%s:%s:%s\n", sheet_name, sheet_path, sheet_type);
 
@@ -165,9 +194,10 @@ void show_sheet(int argc, string args[]){
         printf("Specifed %i parameters when there should be 1\n", argc - 2);
         return;
     }
-    
+    compute_filepath();
+
     FILE *saved_sheets;
-    saved_sheets = fopen("./.sheets", "r");
+    saved_sheets = fopen(filename, "r");
  
     //Iterate over buffer
     int file_size;
