@@ -14,20 +14,36 @@ You're sitting at your computer. _"Oh crap how do I exit vim"_ you think to your
 ### Saving cheatsheets
 _Cheatsheet_ creates a `.sheets` file in the current working directory and uses that file to store all of your cheatsheets. The format of the `.sheets` file is as follows
 
-`cheatsheet add <key name>:<file location>:<file type>`
+`cheatsheet add <key name> <file location> <file type>`
+
+This command adds the following line to the `.sheets` file
+
+`<key name>:<file location>:<file type>`
+
 
 - `<key name>` : when searching through `.sheets`, _Cheatsheet_ will attempt to find the first instance of `key name`. From there it will parse the rest of the line.
 - `<file location>` : the location of your cheatsheet. _NOTE: this value does not have to be a file location. Instead it can also be binary paramters (See Binaries Bellow)_
 - `<file type>` : the type/classifcation of the file. This is used to identify which binary to launch the file with (See Binaries Bellow).
 
-__`.sheets` is parsed by newlines, thus different line endings may cause some errors__
+__NOTE `.sheets` is parsed by newlines, thus different line endings may cause some errors__
 ___
 
 
 ### Loading cheatsheets
 _Cheatsheet_ loads files from the `.sheets` file with their corresponding binary. Binaries are also stored in `.sheets` (See Binaries bellow)
 
-`cheatsheet show <file type>:<binary location>:bin`
+`cheatsheet show <key name>`
+___
+
+
+### Adding binaries
+
+`cheatsheet binary <file type> <binary location>`
+
+This command adds the following line to the `.sheets` file
+
+`<file type>:<binary location>:bin`
+
 
 - `<file type>` : all files associated with this type will be loaded with this binary
 - `<binary location>` : the location of the binary. If the binary is loacted in your `PATH` you should also be fine
@@ -35,30 +51,24 @@ _Cheatsheet_ loads files from the `.sheets` file with their corresponding binary
 ___
 
 
-### Adding binaries
-`cheatsheet binary <file type>:<binary location>`
-
-- `<file type>` : all files associated with this type will be loaded with this binary
-- `<binary location>` : the location of the binary. If the binary is loacted in your `PATH` you should also be fine
-___
-
-
 ## Binaries
-By itself _Cheatsheet does nothing besides run commands. It must be coupled with other tools to prove effective, but before that let's break past some layers of abstraction
+By itself _Cheatsheet_ does nothing besides run commands. It must be coupled with other tools to prove effective, but before that let's break past some layers of abstraction
 
 ### Control Flow
+
 1) _Cheatsheet_ starts off detecting what command you just ran
-⋅⋅* _Cheatsheet_ doesn't actually parse the entire command, instead it only parses the first letter. So just typing `a` instead of `add` works just as well.
-2) _Cheatsheet_ then splits the `.sheets` file buffer at all of its newlines, and then parses each line
+     - _Cheatsheet_ doesn't actually parse the entire command, instead it only parses the first letter. So just typing `a` instead of `add` works just as well.
+2) _Cheatsheet_ then splits the `.sheets` file buffer at the newlines, and then parses each line
+     - DOS/Windows line endings are not supported
 3) It first tries to find the first instance of the `<key name>`.
 4) After finding the first instance of `<key name>` it then checks for the `<file type>`. It then tries to find the first instance of `<file type>` that also contains `bin` as the term after the second colon
 5) Upon finding the binary it then executes the following command
 
 `<binary location> <file location>`
 
-__NOTE that when executing the command the two values are simply appended together with a space in between. This means that `<file location>` doesn't actually have to be the file location, it can be any aditional parameters that you wish to pass to the binary.__
+__NOTE: that when executing the command the two values are simply appended together with a space in between. This means that `<file location>` doesn't actually have to be the file location, it can be any aditional parameters that you wish to pass to the binary.__
 
-__ADDITIONAL NOTE `<binary location>` can also be located in your PATH, it doesn't neceissarly have to be the actual binary location__
+__ADDITIONAL NOTE: `<binary location>` can also be located in your PATH, it doesn't neceissarly have to be the actual binary location__
 
 ___
 
@@ -90,18 +100,3 @@ If you're using a tiling WM like i3, or bspwn...
 `binary` - add a binary to the list of saved binaries
 
 `help` - shows this list of operations
-
-## Structure
-- Everything is saved in a `.sheets` file --located in the working directory
-
-### Configuration of `.sheets`
-
-The following should be paths to an binary that takes either a PDF/image/text as an argument. The format for the values of each key should be `[program_specific_stuff] ${cheatsheet}`. In this case `${cheatsheet}` will be replaced by a path to the cheatsheet. 
-- PDF_VIEWER : 
-- IMAGE_VIEWER : 
-- TEXT_VIEWER : set to `none` to print to console
-
-## Recomendations
-- Use lightweight PDF & image viewer _(I'm probably releasing one soon)_
-- Use a global keybinding manager to be able to access your cheatsheets on the fly
-- Modify the source to fit your desktop environemnt/window manager _(For example I have my cheatsheets show up on polybar)_

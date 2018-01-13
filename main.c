@@ -5,11 +5,6 @@
 
 typedef char* string;
 
-struct string_split {
-    string val;
-    int size;
-};
-
 void execute_process(string bin_path, string file_path){
     char * new_str;
     new_str = malloc(strlen(bin_path) + strlen(file_path) + 1);
@@ -40,44 +35,18 @@ int count_chars(char *buffer, int buffer_length, char char_id){
     return count;
 }
 
-void split(char *buffer, int buffer_offset, int line_size, struct string_split *split){
-      string buffer_line = malloc(line_size * sizeof(char)); 
-
-      //NOTE: Check these offsets
-      memcpy(buffer_line, buffer + buffer_offset, line_size);
-      //Splits
-      split->val = buffer_line;
-      split->size = line_size; 
-}
-
 //Splits a given buffer @ a given character into multiple strings
-void buffer_split(char *buffer, int buff_size, char split_char, struct string_split splits[]){
-    //Points to the last position that the data was copied from (the last newline)
-    short buff_cursor = 0;
-    //Iterates over each character in the line until it runs into a newline
-    //then adds to the buff_cursor and resets back to 0
-    short line_iter = 0;
-    char buff_char;
+void buffer_split(char *buffer, const char split_char, string splits[]){
+    int i = 0;
+    string split;
 
-    //Split strings
-    int current_split = 0;
+    while((split = strsep(&buffer, &split_char)) != NULL){  
+        int length = strlen(split);
 
-    while(buff_cursor + line_iter < buff_size){
-        buff_char = buffer[buff_cursor + line_iter];
-        
-        //If the character in the buffer is equal to the ASCII code, or if the character is null
-        if(buff_char == split_char){
-            split(buffer, buff_cursor, line_iter, &splits[current_split]); 
-            current_split++;
-            //Add an offset of 1 to skip over the newline char
-            buff_cursor += line_iter + 1;
-            line_iter = 0;
-        }
-        line_iter++;
+        splits[i] = malloc(length * sizeof(char));
+        memcpy(splits[i], split, length);
+        i++;
     }
-
-    //One final split @ the EOF
-    split(buffer, buff_cursor, line_iter, &splits[current_split]); 
 }
 
 //Define the functions
@@ -98,21 +67,26 @@ void list_sheets(string args[]){
     fread(file_buffer, sizeof(char), file_size, saved_sheets);
    
     int num_lines = count_chars(file_buffer, file_size, 10); 
-    struct string_split splits[num_lines];
-    buffer_split(file_buffer, file_size, 10, splits);
+    string splits[num_lines];
+    buffer_split(file_buffer, 10, splits);
     
 
     const int spacing = 20;
     printf("%*s| %*s|%*s|\n", spacing,"Key Name", spacing, "File Location", spacing, "File Type");
-    struct string_split colon_splits[3];
+    string colon_splits[3];
+    
+    //Avoid segfaulting
+    colon_splits[1] = "";
+    colon_splits[2] = "";
+
     for(int i = 0; i < num_lines; i++){
         //58 is the ASCII code for a colon
-        buffer_split(splits[i].val, splits[i].size, 58, colon_splits);
+        buffer_split(splits[i], 58, colon_splits);
         //Filter out the binaries
-        if(strcmp(colon_splits[1].val, "bin") == 0)
+        if(strcmp(colon_splits[2], "bin") == 0 || strcmp(colon_splits[2], "") == 0)
             continue; 
 
-        printf("%*s|%*s|%*s|\n", spacing, colon_splits[0].val, spacing, colon_splits[1].val, spacing, colon_splits[2].val);
+        printf("%*s|%*s|%*s|\n", spacing, colon_splits[0], spacing, colon_splits[1], spacing, colon_splits[2]);
     } 
     fclose(saved_sheets);
 }
@@ -120,14 +94,15 @@ void list_sheets(string args[]){
 void add_binary(int argc, string args[]){
     if(argc != 4){
         printf("Specifed %i parameters when there should be 3\n", argc - 2);
+        return;
     }
 
-    char *binary_name = args[2];
-    char *binary_location = args[3];
+    char *binary_location = args[2];
+    char *binary_type = args[3];
     FILE *saved_sheets;
     saved_sheets = fopen("./.sheets", "a");
     
-    fprintf(saved_sheets, "%s:%s\n", binary_name, binary_location);
+    fprintf(saved_sheets, "%s:%s:bin\n", binary_type, binary_location);
 
     fclose(saved_sheets);
    
@@ -136,6 +111,7 @@ void add_binary(int argc, string args[]){
 void add_sheets(int argc, string args[]){
     if(argc != 5){
         printf("Specifed %i parameters when there should be 3\n", argc - 2);
+        return;
     }
 
     char *sheet_name = args[2];
@@ -149,25 +125,28 @@ void add_sheets(int argc, string args[]){
     fclose(saved_sheets);
 }
 
-void parse_and_execute(struct string_split lines[], int num_lines, string key){
+void parse_and_execute(string lines[], int num_lines, string key){
     for(int i = 0; i < num_lines; i++){
-        struct string_split colon_splits[3];
-        buffer_split(lines[i].val, lines[i].size, 58, colon_splits);
+        string colon_splits[3];
+        colon_splits[1] = "";
+        colon_splits[2] = "";
+
+        buffer_split(lines[i], 58, colon_splits);
         string file_type, file_location;
 
-        if(strcmp(colon_splits[0].val, key) == 0){
+        if(strcmp(colon_splits[0], key) == 0){
             //Save some of the array into temporary variables
-            file_type = malloc(colon_splits[2].size * sizeof(char));
-            file_type = colon_splits[2].val;
+            file_type = malloc(strlen(colon_splits[2]) * sizeof(char));
+            file_type = colon_splits[2];
 
-            file_location = malloc(colon_splits[1].size * sizeof(char));
-            file_location = colon_splits[1].val;
+            file_location = malloc(strlen(colon_splits[1]) * sizeof(char));
+            file_location = colon_splits[1];
 
             //Iterate over the file buffer again and find the binaries
             for(int k = 0; k < num_lines; k++){
-                buffer_split(lines[k].val, lines[k].size, 58, colon_splits);
-                if(strcmp(colon_splits[0].val, file_type) == 0 && strcmp(colon_splits[1].val, "bin") == 0){
-                    execute_process(colon_splits[1].val, file_location); 
+                buffer_split(lines[k], 58, colon_splits);
+                if(strcmp(colon_splits[0], file_type) == 0 && strcmp(colon_splits[2], "bin") == 0){
+                    execute_process(colon_splits[1], file_location); 
                     return;
                 }
             }
@@ -199,8 +178,8 @@ void show_sheet(int argc, string args[]){
     fread(file_buffer, sizeof(char), file_size, saved_sheets);
    
     int num_lines = count_chars(file_buffer, file_size, 10); 
-    struct string_split splits[num_lines];
-    buffer_split(file_buffer, file_size, 10, splits);
+    string splits[num_lines];
+    buffer_split(file_buffer, 10, splits);
     
     parse_and_execute(splits, num_lines, args[2]);
 }
@@ -217,6 +196,7 @@ int main(int argc, string argv[]){
     }
 
     //Switch statement based on first character of second arg
+
     switch(argv[1][0]){
         //list
         case 'l':
@@ -237,6 +217,7 @@ int main(int argc, string argv[]){
         //add binary
         case 'b':
             add_binary(argc, argv);
+            break;
         default:
             printf("Unrecognized command. Type 'help' for more\n");
             break;
