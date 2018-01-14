@@ -1,11 +1,18 @@
-# Cheatsheet
+# Sheemo
 Ever have a mess like this?
 ![Really Messy Example of having a lot of cheatsheets](https://i.imgur.com/0QCUaDH.jpg)
 
-Having physical cheatsheets/reference papers for all of your keybindings, gameplay guides, passwords, etc. can be handy, but unless you have ~~a yuge wall~~ a lot of space on your desk you'll soon realize how much of a mess it is
+Having physical cheatsheets/reference papers for all of your keybindings, gameplay guides, passwords, etc. can be handy, but you'll soon realize how much of a mess it is
 
-_Cheatsheet_ (better name incomming) is CLI application that's meant to fix this.
+_Sheemo_ is CLI application that's meant to fix this.
 
+**Table of Contents**
+
+* Quickstart
+* Usage
+* Workflow integration
+* How it Works
+* Manually Building
 
 ## Workflow integration
 You're sitting at your computer. _"Oh crap how do I exit vim"_ you think to yourself. No problem I'll just pull up one of my many cheatsheets by typing `cheatsheet show vim` into my terminal. And all of a sudden __POOF__, an image file with a vim cheatsheet you found online and downloaded previously pops up. Now you can safely exit vim without closing your entire terminal.
