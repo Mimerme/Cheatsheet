@@ -4,24 +4,77 @@ Ever have a mess like this?
 
 Having physical cheatsheets/reference papers for all of your keybindings, gameplay guides, passwords, etc. can be handy, but you'll soon realize how much of a mess it is
 
-_Sheemo_ is CLI application that's meant to fix this.
+_Sheemo_ is CLI application meant to fix this.
 
 **Table of Contents**
 
-* Quickstart
-* Usage
-* Workflow integration
-* How it Works
-* Manually Building
+* [Quickstart](#Quickstart)
+* [Usage](#Usage)
+* [Workflow]
+* [How it Works]
+* [Manually Building]
 
-## Workflow integration
-You're sitting at your computer. _"Oh crap how do I exit vim"_ you think to yourself. No problem I'll just pull up one of my many cheatsheets by typing `cheatsheet show vim` into my terminal. And all of a sudden __POOF__, an image file with a vim cheatsheet you found online and downloaded previously pops up. Now you can safely exit vim without closing your entire terminal.
+# Quickstart
+Sheemo is a simple tool that organizes and executes a series of commands through your OS's command line. It is designed to be paired with other applications, and this section explains how to do so.
 
-## How it works
+## Linux
+
+#### [xbindkeys](http://git.savannah.gnu.org/cgit/xbindkeys.git/)
+- Great for creating global shortcuts to open cheatsheets
+- Check distro for installation instructions
+
+#### [pqiv](https://github.com/phillipberndt/pqiv)
+- Amazing lightweight image/pdf viewer. Should fit 90% of your cheatsheet/reference sheet needs
+- _NOTE_ : Lower versions of PQIV have a bug that fails to open PDF files. Fix this by either building from source or installing the latest version.
+
+---
+
+### Installation Instructions
+
+###### Debian/Ubuntu
+`apt-get install xbindkeys`  
+`apt-get install pqiv`
+
+[PQIV Debian package](https://packages.debian.org/en/sid/pqiv)
+
+###### Arch Linux
+`pacman -S xbindkeys`  
+[PQIV AUR](https://aur.archlinux.org/packages/pqiv/)
+
+###### Other Distros
+[xbindkeys](https://github.com/IonicaBizau/xbindkeys/blob/master/INSTALL)  
+[Install PQIV](https://github.com/phillipberndt/pqiv#installation)
+
+## Windows
+## MacOS
+
+# Usage
+`cheatsheat [operation] [args]`
+
+### Operations
+`list` - lists saved cheatseets  
+
+`show <key name>` - show a specified cheatseet  
+
+`add <key name> <file path> <file type>` - add a cheatsheet to the list of saved cheatsheets  
+
+`binary <associated file type> <binary path>` - add a binary to the list of saved binaries  
+
+`help` - shows this list of operations  
+
+
+# Workflow
+## Linux
+_Sheemo_ has tools that automatically integrate's itself with `PQIV` and `xbindkeys`, just run `./sheemo.sh` 
+## Windows
+## MacOS
+
+
+# How it works
 ### Saving cheatsheets
 _Cheatsheet_ creates a `.sheets` file in the current working directory and uses that file to store all of your cheatsheets. The format of the `.sheets` file is as follows
 
-`cheatsheet add <key name> <file location> <file type>`
+`sheemo add <key name> <file location> <file type>`
 
 This command adds the following line to the `.sheets` file
 
@@ -82,28 +135,5 @@ ___
 ## Additional Information
 
 ### LINUX
-If you're running linux you shouldn't have any problems, as this entire program was designed for Linux. If your on OSX that may be a different story but most of the guide should still apply
-
-On Linux you should...
-- set up global hotkeys with `xbindkeys`
-- use a lightweight image viewer like `PQIV`
-- use a lightweight PDf viewer like
-- use a lightweight text file viewer like 
-
 If you're using a tiling WM like i3, or bspwn...
 - you might want to configure your WM so that floating windows are used for the cheatseets
-
-
-## CLI Usage
-`cheatsheat [operation] [args]`
-
-### Operations
-`list` - lists saved cheatseets
-
-`show` - show a specified cheatseet
-
-`add` - add a cheatsheet to the list of saved cheatsheets 
-
-`binary` - add a binary to the list of saved binaries
-
-`help` - shows this list of operations
