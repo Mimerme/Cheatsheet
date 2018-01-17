@@ -14,6 +14,8 @@ void compute_filepath(){
     strcat(filename, "/.cheatsheet/");
     mkdir(filename, 0775);
     strcat(filename, ".sheets");
+
+    free(filename);
 }
 
 //Checks if the file is NULL
@@ -61,7 +63,7 @@ void buffer_split(string buffer, const char split_char, string splits[]){
     int i = 0;
     string split;
 
-    //TODO: Hack can be done without copy
+    //TODO: Hack, could be done without copy
     string buff_copy = malloc(strlen(buffer) + 1);
     strcpy(buff_copy, buffer);
 
@@ -113,7 +115,13 @@ void list_sheets(string args[]){
             continue; 
 
         printf("%*s|%*s|%*s|\n", spacing, colon_splits[0], spacing, colon_splits[1], spacing, colon_splits[2]);
-    } 
+        for(int i = 0; i < 3; i++){
+            free(colon_splits[i]);
+        }
+    }
+    for(int i = 0; i < num_lines; i++){
+        free(splits[i]);
+    }
     fclose(saved_sheets);
 }
 
@@ -212,6 +220,10 @@ void show_sheet(int argc, string args[]){
     buffer_split(file_buffer, 10, splits);
     
     parse_and_execute(splits, num_lines, args[2]);
+
+    for(int i = 0; i < num_lines; i++){
+        free(splits[i]);
+    }
 }
 
 void display_help(){
