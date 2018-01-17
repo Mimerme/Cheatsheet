@@ -37,6 +37,18 @@ void execute_process(string bin_path, string file_path){
     free(new_str);
 }
 
+int quickstart(){
+    //Check if PQIV is installed
+    //Check if AUTOhotkey is installed for windows
+#ifdef _WIN32
+
+#endif
+    //xbindkeys for linux
+#ifdef __linux__
+#endif
+
+}
+
 long get_file_size(FILE *file){
    check_file(file);
 
