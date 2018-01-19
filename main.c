@@ -317,6 +317,13 @@ void show_sheet(int argc, string args[]){
 
 void display_help(){
     //TODO: Write a help menu
+    printf("--Help Menu--\n\
+            list - list the saved sheets\n\
+            help - display this help menu\n\
+            show - display a sheet with its specifed binary\n\
+            add - save a new sheet\n\
+            bin - add a new binary to open a specific file type\n\
+            quick - configure quickstart\n");
 }
 
 int main(int argc, string argv[]){
@@ -327,7 +334,6 @@ int main(int argc, string argv[]){
     }
 
     //Switch statement based on first character of second arg
-
     switch(argv[1][0]){
         //list
         case 'l':
