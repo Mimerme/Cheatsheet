@@ -14,7 +14,7 @@ release:
 
 debug:	
 	@echo Compiling debug
-	${CC} -g ${SOURCE_FILES}
+	${CC} -g ${SOURCE_FILES} -D DEBUG
 
 install: release
 	@echo Installing 'cheatsheet' as ${INSTALL_PATH}

@@ -45,8 +45,6 @@ void execute_process(string bin_path, string file_path){
 
 
 //-1 error
-
-
 long get_file_size(FILE *file){
    check_file(file);
 
@@ -84,6 +82,10 @@ void buffer_split(string buffer, const char split_char, string splits[]){
         memcpy(splits[i], split, length);
         i++;
     }
+#ifdef DEBUG
+
+
+#endif
     free(buff_copy);
 }
 
@@ -107,7 +109,7 @@ void list_sheets(string args[]){
     int num_lines = count_chars(file_buffer, file_size, 10); 
     string splits[num_lines];
     buffer_split(file_buffer, 10, splits);
-    
+     
 
     const int spacing = 20;
     printf("%*s| %*s|%*s|\n", spacing,"Key Name", spacing, "File Location", spacing, "File Type");
