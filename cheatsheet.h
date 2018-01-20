@@ -7,17 +7,24 @@
 typedef char* string;
 char* filename;
 
-void compute_filepath(string file);
-void check_file(FILE* file);
+//Utility functions
 int has_quickstart();
-void execute_process();
-long get_file_size(FILE* file);
-int count_chars(string buffer, int buffer_length, char char_id);
-void buffer_split(string buffer, const char split_char, string splits[]);
-void list_sheets(string args[]);
-void add_binary(int argc, string args[]);
+
+void compute_filepath(string);
+void check_file(FILE*);
+long get_file_size(FILE*);
+
+void execute_process(string, string);
+int count_chars(string, int, char);
+void buffer_split(string, const char, string[]);
+void parse_and_executes(string[], int, string);
+
+//Commands accessible by the user
 int quickstart();
-void add_sheets(int argc, string args[]);
-void parse_and_executes(string lines[], int num_lines, string key);
-void show_sheet(int argc, string args[]);
 void display_help();
+void list_sheets(string args[]);
+
+//  Commands that write to the file
+void add_binary(int, string[]);
+void add_sheets(int, string[]);
+void show_sheet(int, string[]);

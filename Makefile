@@ -4,7 +4,7 @@ SHELL = /bin/sh
 SOURCE_FILES =  main.c
 CC = gcc
 INSTALL_PATH=/usr/local/bin/
-BIN_NAME=cheatsheet
+BIN_NAME=sheemo
 
 INSTALL_PATH:=${INSTALL_PATH}${BIN_NAME}
 
