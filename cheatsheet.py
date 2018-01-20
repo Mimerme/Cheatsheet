@@ -2,20 +2,27 @@
 import sys
 import shelve
 import os
+import subprocess
 
-home_path = os.path.expanduser('~')
+home_path = os.path.expanduser('~') + "/"
 sheet_file = ".sheets"
 sheet_file = home_path + sheet_file
 
 def execute_process(binary_path, arguments):
-    pass
+    subprocess.call([binary_path, arguments])
+    return
 
 def list_sheets(argv):
+    row_format ="{:^15}|{:^15}|{:^15}"
+    row = row_format.format("FileID", "Path", "Type")
+    print(row)
+    print("------------------------------------------")
 
     with shelve.open(sheet_file) as sheets:
-        print(sheets['tes'])
-
-    pass
+        for key in sheets:
+            row = row_format.format(key, sheets[key]['path'], sheets[key]['type'])
+            print(row)
+    return
 
 def display_help():
     print("--Help Menu--\n\
