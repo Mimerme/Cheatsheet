@@ -1,26 +1,71 @@
 #!/bin/python3
 import sys
+import shelve
+import os
+
+home_path = os.path.expanduser('~')
+sheet_file = ".sheets"
+sheet_file = home_path + sheet_file
 
 def execute_process(binary_path, arguments):
     pass
 
-def parse_and_execute():
-    pass
-
 def list_sheets(argv):
+
+    with shelve.open(sheet_file) as sheets:
+        print(sheets['tes'])
+
     pass
 
 def display_help():
+    print("--Help Menu--\n\
+            list - list the saved sheets\n\
+            help - display this help menu\n\
+            show - display a sheet with its specifed binary\n\
+            add - save a new sheet\n\
+            bin - add a new binary to open a specific file type\n\
+            quick - configure quickstart\n")
     pass
 
 def show_sheet(argc, argv):
-    pass
+    if argc != 3:
+        print("Specified " + str(argc - 2)  + " parameters when there should be 1")
+        return
+    
+    file_id = argv[2]
+
+    #Parse & execute the program
+    with shelve.open(sheet_file) as sheets:
+        #First iterate to to find the key
+        for sheet in sheets:
+            if(sheet == file_id):
+                file_type = sheets[sheet]['type']
+
+                #Then iterate to find the corresponding binary
+                for binary in sheets:
+                    if binary == file_type and sheets[binary]['type'] == 'bin':
+                        execute_process(sheets[binary]['path'], sheets[sheet]['path'])
+
+
+    return
 
 def add_sheet(argc, argv):
-    pass
+    if argc != 5:
+        print("Specified " + str(argc - 2)  + " parameters when there should be 3")
+        return
+
+    with shelve.open(sheet_file) as sheets:
+        sheets[argv[2]] = {'path': argv[3], 'type': argv[4]}
+    return
 
 def add_binary(argc, argv):
-    pass
+    if argc != 4:
+        print("Specified " + str(argc - 2)  + " parameters when there should be 2")
+        return
+
+    with shelve.open(sheet_file) as sheets:
+        sheets[argv[2]] = {'path': argv[3], 'type': 'bin'}
+    return
 
 def quickstart():
     pass
@@ -44,7 +89,7 @@ def main(argv):
         add_binary(argc, argv)
     elif argv[1] == "quickstart":
         quickstart()
-    else
+    else:
         print("Unrecognized command. Type help for more information")
 
 
