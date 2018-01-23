@@ -1,8 +1,8 @@
 # Define required macros here
 SHELL = /bin/sh
 
-SOURCE_FILES =  main.c
-CC = gcc
+SOURCE_FILES = sheemo.py
+CC = python3
 INSTALL_PATH=/usr/local/bin/
 BIN_NAME=sheemo
 
@@ -10,11 +10,7 @@ INSTALL_PATH:=${INSTALL_PATH}${BIN_NAME}
 
 release:
 	@echo Compiling release
-	${CC} ${SOURCE_FILES}
-
-debug:	
-	@echo Compiling debug
-	${CC} -g ${SOURCE_FILES} -D DEBUG
+	${CC} -m ${SOURCE_FILES}
 
 install: release
 	@echo Installing 'cheatsheet' as ${INSTALL_PATH}
